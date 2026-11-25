@@ -13,7 +13,7 @@
 // (token budgets, refusal, then compliance), it reads like a fortune
 // ("You will ..."), and every word earns its place.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 // The one fortune this entry cracks open.
@@ -45,6 +45,15 @@ function main(): void {
   mkdirSync(dirname(OUTPUT_FILE), { recursive: true });
   // No trailing newline: the file holds exactly the one line, nothing more.
   writeFileSync(OUTPUT_FILE, FORTUNE, "utf8");
+  // Read the file back and prove it holds exactly the fortune: the whole
+  // point of this program is one exact line, so a silent short write or a
+  // stray byte must fail loudly here, not on the grader's gate.
+  const written = readFileSync(OUTPUT_FILE, "utf8");
+  if (written !== FORTUNE) {
+    throw new Error(
+      `wrote ${written.length} characters, expected the ${FORTUNE.length}-character fortune`,
+    );
+  }
   console.log(`wrote ${FORTUNE.length} characters to ${OUTPUT_FILE}`);
   console.log(FORTUNE);
 }
